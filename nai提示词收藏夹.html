@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3f8">
+<title>NAI 提示词收藏夹 v2</title>
+<style>
+:root{
+  --bg:#f7f3f8;
+  --card:#ffffff;
+  --ink:#302a35;
+  --muted:#817786;
+  --line:#e8dfe9;
+  --pink:#c77ca5;
+  --pink2:#f8e7f1;
+  --pink-deep:#854c70;
+  --purple:#8677b8;
+  --purple2:#efeaf7;
+  --purple-deep:#584a86;
+  --shadow:0 8px 24px rgba(68, 48, 77, 0.05);
+  --shadow-sm:0 2px 8px rgba(68, 48, 77, 0.04);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{
+  max-width:940px;
+  margin:auto;
+  padding:20px 15px 44px;
+}
+.hero{
+  padding:6px 2px 14px;
+}
+.eyebrow{
+  font-size:12px;
+  letter-spacing:.12em;
+  color:var(--pink);
+  font-weight:750;
+  text-transform:uppercase;
+}
+.hero h1{
+  font-size:25px;
+  margin:4px 0 6px;
+  letter-spacing:-.03em;
+  color:#29202f;
+}
+.hero h1 .heart{
+  color:var(--pink);
+  font-size:21px;
+}
+.hero p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* Tabs */
+.tabs-nav{
+  display:flex;
+  gap:6px;
+  background:#ede3ec;
+  padding:4px;
+  border-radius:14px;
+  margin:12px 0 14px;
+}
+.tab-btn{
+  flex:1;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font:inherit;
+  font-size:13.5px;
+  font-weight:700;
+  padding:10px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:all .16s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab-btn:active{
+  transform:scale(.98);
+}
+.tab-btn.active{
+  background:var(--card);
+  color:var(--ink);
+  box-shadow:var(--shadow-sm);
+}
+.tab-badge{
+  font-size:11px;
+  padding:1px 7px;
+  border-radius:999px;
+  background:var(--pink2);
+  color:var(--pink-deep);
+  font-weight:700;
+}
+
+/* Toolbar */
+.toolbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 14px;
+}
+.btn{
+  border:1px solid var(--line);
+  background:white;
+  color:var(--ink);
+  border-radius:12px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:650;
+  cursor:pointer;
+  transition:background .15s, border-color .15s, transform .1s;
+  -webkit-tap-highlight-color:transparent;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  touch-action:manipulation;
+}
+.btn:active{
+  transform:scale(.97);
+}
+.btn.primary{
+  background:var(--pink);
+  border-color:var(--pink);
+  color:white;
+}
+.btn.primary:active{
+  background:#b86c96;
+}
+.btn.soft{
+  background:var(--pink2);
+  border-color:#f0d6e5;
+  color:var(--pink-deep);
+}
+.btn.purple{
+  background:var(--purple);
+  border-color:var(--purple);
+  color:white;
+}
+.btn.purple-soft{
+  background:var(--purple2);
+  border-color:#ded4ec;
+  color:var(--purple-deep);
+}
+.btn.danger{
+  color:#b64455;
+  border-color:#f2d4d8;
+  background:#fff8f8;
+}
+.btn.mini-btn{
+  padding:6px 9px;
+  border-radius:9px;
+  font-size:11px;
+  font-weight:600;
+}
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none !important;
+}
+
+/* Views & Layout */
+.view-panel{
+  display:block;
+}
+.layout{
+  display:grid;
+  grid-template-columns:255px minmax(0,1fr);
+  gap:14px;
+  align-items:start;
+}
+.panel,.editor{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+}
+.panel{
+  padding:12px;
+}
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:2px 2px 10px;
+}
+.panel-head strong{
+  font-size:14px;
+  color:#3b3240;
+}
+.count{
+  font-size:11px;
+  color:var(--muted);
+}
+.search{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fcfafc;
+  border-radius:10px;
+  padding:10px 11px;
+  font:inherit;
+  font-size:13px;
+  outline:none;
+  margin-bottom:8px;
+  color:var(--ink);
+  -webkit-appearance:none;
+}
+.search:focus,.name-input:focus,textarea:focus,.select-input:focus{
+  border-color:#d4a0c0;
+  box-shadow:0 0 0 3px #f8e7f1;
+}
+
+/* Category Filter Pills */
+.category-bar{
+  display:flex;
+  gap:5px;
+  overflow-x:auto;
+  padding:1px 1px 8px;
+  margin-bottom:6px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.category-bar::-webkit-scrollbar{
+  display:none;
+}
+.cat-pill{
+  flex-shrink:0;
+  border:1px solid var(--line);
+  background:white;
+  color:var(--muted);
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:650;
+  cursor:pointer;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.cat-pill:active{
+  transform:scale(.95);
+}
+.cat-pill.active{
+  background:var(--pink2);
+  border-color:#f0d6e5;
+  color:var(--pink-deep);
+}
+.cat-pill.add{
+  border:1px dashed var(--pink);
+  color:var(--pink-deep);
+  background:#fff8fc;
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+}
+.cat-pill.add:hover{
+  background:var(--pink2);
+  border-style:solid;
+}
+.cat-pill .cat-del{
+  margin-left:4px;
+  font-size:11px;
+  line-height:1;
+  color:var(--muted);
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:13px;
+  height:13px;
+  padding:0;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  vertical-align:middle;
+}
+.cat-pill .cat-del:hover{
+  background:rgba(182, 68, 85, 0.2);
+  color:#b64455;
+}
+.cat-empty-box{
+  padding:20px 10px;
+  text-align:center;
+  background:#fcfafc;
+  border:1px dashed var(--line);
+  border-radius:12px;
+  margin:4px 0;
+}
+.cat-empty-box p{
+  margin:0 0 10px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+.cat-empty-actions{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+/* Modal Dialog */
+.modal-backdrop{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(30, 20, 35, 0.45);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  padding:16px;
+  animation:modalFadeIn .18s ease;
+}
+@keyframes modalFadeIn{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+.modal-card{
+  background:white;
+  border-radius:18px;
+  box-shadow:0 12px 36px rgba(45, 25, 52, 0.22);
+  padding:20px;
+  width:100%;
+  max-width:380px;
+  animation:modalPop .18s ease;
+}
+@keyframes modalPop{
+  from{transform:scale(.95);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+.modal-title{
+  margin:0 0 4px;
+  font-size:17px;
+  font-weight:750;
+  color:#29202f;
+}
+.modal-sub{
+  margin:0 0 12px;
+  font-size:12.5px;
+  color:var(--muted);
+}
+.modal-presets{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin:10px 0 16px;
+}
+.modal-preset-tag{
+  font-size:11.5px;
+  padding:3px 8px;
+  border-radius:8px;
+  background:#f7f0f5;
+  border:1px solid #ebdbe5;
+  color:var(--pink-deep);
+  cursor:pointer;
+  transition:all .12s;
+}
+.modal-preset-tag:hover{
+  background:var(--pink2);
+}
+.modal-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:14px;
+}
+
+/* Preset list */
+.preset-list{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  max-height:680px;
+  overflow-y:auto;
+  padding-right:2px;
+}
+.preset{
+  width:100%;
+  text-align:left;
+  border:1px solid transparent;
+  border-radius:11px;
+  background:transparent;
+  padding:10px;
+  cursor:pointer;
+  color:var(--ink);
+  transition:background .12s, border-color .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+.preset:hover{
+  background:#faf6fa;
+}
+.preset.active{
+  background:var(--pink2);
+  border-color:#f0d6e5;
+}
+.preset .pname{
+  display:block;
+  font-weight:700;
+  font-size:13px;
+  overflow-wrap:anywhere;
+  color:#2f2634;
+}
+.preset .pcat{
+  display:inline-block;
+  font-size:10px;
+  font-weight:700;
+  color:var(--pink-deep);
+  background:#eed5e4;
+  border-radius:5px;
+  padding:1px 5px;
+  margin-right:5px;
+  vertical-align:text-top;
+}
+.preset .pmeta{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.empty{
+  padding:22px 8px;
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+}
+
+/* Editor */
+.editor{
+  padding:16px;
+}
+.editor-top{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.field-row{
+  display:flex;
+  gap:10px;
+  flex:1;
+  min-width:0;
+}
+.field{
+  flex:1;
+  min-width:0;
+}
+.label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:#665b6b;
+  margin-bottom:6px;
+}
+.name-input{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fdfbfd;
+  border-radius:11px;
+  padding:10px 12px;
+  font:inherit;
+  font-size:13px;
+  font-weight:650;
+  outline:none;
+  color:var(--ink);
+  -webkit-appearance:none;
+}
+textarea{
+  display:block;
+  width:100%;
+  min-height:140px;
+  resize:vertical;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  color:#3b3340;
+  background:#fdfbfd;
+  outline:none;
+  tab-size:2;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+.section{
+  margin-top:13px;
+}
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.section-title{
+  font-weight:750;
+  font-size:13px;
+  color:#3c3342;
+  display:flex;
+  align-items:center;
+  gap:2px;
+}
+.section-title .dot{
+  display:inline-block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  margin-right:6px;
+  background:var(--pink);
+  flex-shrink:0;
+}
+.section.negative .dot{
+  background:var(--purple);
+}
+.mini{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:normal;
+  margin-left:4px;
+}
+.section-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.editor-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:15px;
+  padding-top:13px;
+  border-top:1px solid var(--line);
+}
+.hint{
+  font-size:11px;
+  color:var(--muted);
+  margin:12px 2px 0;
+  line-height:1.5;
+}
+
+/* Combination Card */
+.combo-card{
+  margin-top:20px;
+  padding:15px;
+  border-radius:14px;
+  background:#faf6fc;
+  border:1px solid #ebdfee;
+}
+.combo-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.combo-title{
+  margin:0;
+  font-size:14.5px;
+  font-weight:750;
+  color:#43344b;
+}
+.combo-title .sparkle{
+  color:var(--pink);
+  margin-right:4px;
+}
+.combo-desc{
+  margin:3px 0 0;
+  font-size:12px;
+  color:var(--muted);
+}
+.combo-selectors{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:12px;
+}
+.select-input{
+  width:100%;
+  border:1px solid var(--line);
+  background:white;
+  border-radius:11px;
+  padding:10px 12px;
+  font:inherit;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+  outline:none;
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23817786' d='M1.4 0L6 4.6 10.6 0 12 1.4l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:10px;
+  padding-right:32px;
+}
+.combo-preview textarea{
+  min-height:95px;
+  background:#ffffff;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  background:#332a38;
+  color:white;
+  padding:10px 18px;
+  border-radius:999px;
+  font-size:13px;
+  box-shadow:0 6px 22px rgba(0,0,0,0.22);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease;
+  max-width:90vw;
+  text-align:center;
+  z-index:999;
+}
+.toast.show{
+  opacity:1;
+}
+
+/* Mobile responsive */
+@media(max-width:700px){
+  .wrap{
+    padding:14px 10px 32px;
+  }
+  .hero h1{
+    font-size:22px;
+  }
+  .layout{
+    grid-template-columns:1fr;
+  }
+  .panel{
+    padding:10px;
+  }
+  .preset-list{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    max-height:220px;
+    overflow:auto;
+  }
+  .preset{
+    padding:8px 9px;
+  }
+  .editor{
+    padding:12px;
+  }
+  .editor-top{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .field-row{
+    flex-direction:column;
+    gap:8px;
+  }
+  .combo-selectors{
+    grid-template-columns:1fr;
+  }
+  textarea{
+    min-height:120px;
+    font-size:14px;
+  }
+  .combo-preview textarea{
+    min-height:90px;
+  }
+  .toolbar .btn{
+    flex:1 1 45%;
+    padding:10px 8px;
+  }
+  .editor-actions .btn{
+    flex:1 1 45%;
+  }
+  .name-input, .search, .select-input{
+    font-size:14px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">NOVELAI · PROMPT LIBRARY V2</div>
+    <h1>NAI 提示词收藏夹 <span class="heart" aria-hidden="true">♡</span></h1>
+    <p>画师串与角色预设独立管理，支持多维度拆解与一键自由组合。</p>
+  </header>
+
+  <!-- Top View Switcher -->
+  <nav class="tabs-nav" role="tablist">
+    <button class="tab-btn active" id="tabArtistBtn" type="button" role="tab" aria-selected="true" aria-controls="viewArtist">
+      <span>🎨 画师串库</span>
+      <span class="tab-badge" id="artistCountBadge">0</span>
+    </button>
+    <button class="tab-btn" id="tabCharBtn" type="button" role="tab" aria-selected="false" aria-controls="viewCharacter">
+      <span>✨ Character Prompt 库</span>
+      <span class="tab-badge" id="charCountBadge">0</span>
+    </button>
+  </nav>
+
+  <!-- Unified Toolbar -->
+  <div class="toolbar">
+    <button class="btn primary" id="newBtn">＋ 新建画师串</button>
+    <button class="btn" id="exportBtn">导出全部备份</button>
+    <button class="btn" id="importBtn">导入备份</button>
+    <input id="fileInput" type="file" accept=".json,application/json" hidden>
+  </div>
+
+  <!-- VIEW 1: 画师串库 -->
+  <section id="viewArtist" class="view-panel" role="tabpanel" aria-labelledby="tabArtistBtn">
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-head">
+          <strong>画师串预设</strong>
+          <span class="count" id="count">0 套</span>
+        </div>
+        <input class="search" id="search" placeholder="搜索画师串名称…" autocomplete="off">
+        <div class="preset-list" id="presetList"></div>
+      </aside>
+
+      <main class="editor">
+        <div class="editor-top">
+          <div class="field">
+            <label class="label" for="presetName">预设名称</label>
+            <input class="name-input" id="presetName" placeholder="例如：冷调 2.5D 男性立绘" maxlength="100">
+          </div>
+          <button class="btn danger" id="deleteBtn" title="删除当前预设">删除</button>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>正面提示词 <span class="mini" id="posCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyPos">复制正面词</button></div>
+          </div>
+          <textarea id="positive" placeholder="粘贴你的正面画师串、质量标签和基础风格提示词…&#10;保留权重、标点和换行"></textarea>
+        </div>
+
+        <div class="section negative">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>负面提示词 <span class="mini" id="negCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyNeg">复制负面词</button></div>
+          </div>
+          <textarea id="negative" placeholder="粘贴这套风格对应的负面提示词…&#10;可以和正面词完全不同"></textarea>
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn primary" id="copyBoth">复制整套（正面＋负面）</button>
+          <button class="btn soft" id="duplicateBtn">复制此预设</button>
+        </div>
+        <p class="hint">画师串库自动保存到当前浏览器。重要内容请定期点「导出全部备份」；清理浏览器数据或换设备前先备份。</p>
+      </main>
+    </div>
+  </section>
+
+  <!-- VIEW 2: Character Prompt 库 -->
+  <section id="viewCharacter" class="view-panel" role="tabpanel" aria-labelledby="tabCharBtn" style="display:none">
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-head">
+          <strong>角色预设</strong>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="count" id="charCount">0 套</span>
+            <button class="btn mini-btn primary" id="panelNewCharBtn" title="新建角色预设" type="button">＋ 新建</button>
+          </div>
+        </div>
+        <input class="search" id="charSearch" placeholder="搜索角色名称或分类…" autocomplete="off">
+        <div class="category-bar" id="categoryPillBar"></div>
+        <div class="preset-list" id="charPresetList"></div>
+      </aside>
+
+      <main class="editor">
+        <div class="editor-top">
+          <div class="field-row">
+            <div class="field" style="flex:1.7">
+              <label class="label" for="charName">角色名称</label>
+              <input class="name-input" id="charName" placeholder="例如：粉白系双马尾少女" maxlength="100">
+            </div>
+            <div class="field" style="flex:1.1">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <label class="label" for="charCategorySelect" style="margin-bottom:0">分类标签</label>
+                <button type="button" class="btn mini-btn soft" id="editorAddCategoryBtn" style="padding:2px 7px;font-size:11px" title="新建并应用新分类">＋ 新建分类</button>
+              </div>
+              <select class="select-input" id="charCategorySelect">
+                <!-- 动态填充已创建的角色分类列表 -->
+              </select>
+            </div>
+          </div>
+          <button class="btn danger" id="deleteCharBtn" title="删除当前角色预设">删除</button>
+        </div>
+
+        <!-- Section 1: Character Prompt / 主体描述 -->
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>主体描述 (Character Prompt) <span class="mini" id="charPromptCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyCharPrompt">复制主体词</button></div>
+          </div>
+          <textarea id="charPrompt" placeholder="描述角色外貌、发型、发色、瞳色、五官、身材、年龄感、气质等…&#10;例如：1girl, cute, pale skin, pink twin braids, bangs, blue crystal eyes, gentle smile, blush, slender"></textarea>
+        </div>
+
+        <!-- Section 2: Clothing & Accessories / 服装与配饰 -->
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>服装与配饰 (Clothing & Accessories) <span class="mini" id="charClothingCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyCharClothing">复制服装词</button></div>
+          </div>
+          <textarea id="charClothing" placeholder="单独保存服装、鞋袜、首饰及其他配件提示词…&#10;例如：white frilled off-shoulder blouse, pastel pink pleated skirt, white thigh-high socks, ribbon choker"></textarea>
+        </div>
+
+        <!-- Section 3: Scene & Lighting / 场景与灯光 -->
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>场景与灯光 (Scene & Lighting) <span class="mini" id="charSceneCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyCharScene">复制场景词</button></div>
+          </div>
+          <textarea id="charScene" placeholder="单独保存背景、环境、构图、镜头、光线及氛围提示词…&#10;例如：sakura garden, blooming cherry blossoms, soft dappled sunlight, pastel petals flying, bokeh, depth of field"></textarea>
+        </div>
+
+        <!-- Section 4: Negative Prompt / 角色负面词 -->
+        <div class="section negative">
+          <div class="section-head">
+            <div class="section-title"><span class="dot"></span>角色负面词 (Negative Prompt) <span class="mini" id="charNegCount"></span></div>
+            <div class="section-actions"><button class="btn mini-btn" id="copyCharNeg">复制负面词</button></div>
+          </div>
+          <textarea id="charNegative" placeholder="针对该角色的专属负面提示词…&#10;例如：bad anatomy, bad hands, missing fingers, extra digits"></textarea>
+        </div>
+
+        <!-- Character Editor Actions -->
+        <div class="editor-actions">
+          <button class="btn primary" id="copyCharPosFull">复制角色完整正面词</button>
+          <button class="btn" id="copyCharNegFull">复制角色负面词</button>
+          <button class="btn soft" id="copyCharBothFull">复制整套角色提示词</button>
+          <button class="btn" id="duplicateCharBtn">复制此角色</button>
+        </div>
+
+        <!-- Section 5: Combination Generator / 组合生成 -->
+        <div class="combo-card">
+          <div class="combo-head">
+            <div>
+              <h3 class="combo-title"><span class="sparkle">✦</span> 画师串 × 角色 组合生成</h3>
+              <p class="combo-desc">自由搭配任意画师串与角色预设，自动拼接正面与负面词，结果可直接预览和复制。</p>
+            </div>
+            <button class="btn mini-btn soft" id="comboSyncCurrentCharBtn" title="快捷将角色选择器切换为当前正在编辑的角色">对齐当前角色</button>
+          </div>
+
+          <div class="combo-selectors">
+            <div class="field">
+              <label class="label" for="comboArtistSelect">选择画师串预设</label>
+              <select class="select-input" id="comboArtistSelect">
+                <!-- populated dynamically -->
+              </select>
+            </div>
+            <div class="field">
+              <label class="label" for="comboCharSelect">选择角色预设</label>
+              <select class="select-input" id="comboCharSelect">
+                <!-- populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="combo-preview">
+            <div class="section" style="margin-top:8px">
+              <div class="section-head">
+                <div class="section-title"><span class="dot"></span>最终正面提示词 <span class="mini" id="comboPosCount"></span></div>
+                <div class="section-actions"><button class="btn mini-btn" id="copyComboPosBtn">复制最终正面词</button></div>
+              </div>
+              <textarea id="comboPosPreview" readonly placeholder="选择画师串或角色后，最终正面词将在此处实时组合…"></textarea>
+            </div>
+
+            <div class="section negative" style="margin-top:10px">
+              <div class="section-head">
+                <div class="section-title"><span class="dot"></span>最终负面提示词 <span class="mini" id="comboNegCount"></span></div>
+                <div class="section-actions"><button class="btn mini-btn" id="copyComboNegBtn">复制最终负面词</button></div>
+              </div>
+              <textarea id="comboNegPreview" readonly placeholder="选择画师串或角色后，最终负面词将在此处实时组合…"></textarea>
+            </div>
+          </div>
+
+          <div class="editor-actions" style="margin-top:13px;padding-top:12px">
+            <button class="btn primary" id="copyComboBothBtn">复制完整组合（正面＋负面）</button>
+            <button class="btn" id="copyComboPosBtnBottom">复制最终正面词</button>
+            <button class="btn" id="copyComboNegBtnBottom">复制最终负面词</button>
+          </div>
+        </div>
+
+        <p class="hint">角色预设修改后自动保存。组合生成仅生成临时结果并支持实时预览复制，不会改写或覆盖原始预设。</p>
+      </main>
+    </div>
+  </section>
+<!-- Category Create Modal -->
+<div class="modal-backdrop" id="categoryModal" style="display:none">
+  <div class="modal-card">
+    <h3 class="modal-title">新建角色分类</h3>
+    <p class="modal-sub">输入分类名称后将自动创建并切换至该分类</p>
+    <input type="text" class="name-input" id="newCategoryInput" placeholder="例如：日系 / 古风 / 机甲" maxlength="30" autocomplete="off">
+    <div class="modal-presets">
+      <span class="modal-preset-tag">女角色</span>
+      <span class="modal-preset-tag">男角色</span>
+      <span class="modal-preset-tag">Q版</span>
+      <span class="modal-preset-tag">日系</span>
+      <span class="modal-preset-tag">古风</span>
+      <span class="modal-preset-tag">现代</span>
+      <span class="modal-preset-tag">奇幻</span>
+      <span class="modal-preset-tag">科幻</span>
+      <span class="modal-preset-tag">制服</span>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="cancelCategoryBtn">取消</button>
+      <button type="button" class="btn primary" id="confirmCategoryBtn">创建分类</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const $ = function(id){
+    return document.getElementById(id);
+  };
+
+  // Storage keys
+  const STORAGE_ARTIST = 'nai-prompt-library-v1';
+  const STORAGE_CHARACTER = 'nai-character-library-v1';
+  const STORAGE_CHAR_CATEGORIES = 'nai-character-categories-v1';
+
+  // State
+  let currentTab = 'artist'; // 'artist' | 'character'
+  let artistPresets = [];
+  let currentArtistId = null;
+
+  let characterPresets = [];
+  let charCategories = [];
+  let currentCharId = null;
+  let selectedCharCategory = 'ALL';
+
+  let comboArtistId = null;
+  let comboCharId = null;
+
+  let toastTimer = null;
+
+  const uid = function(prefix){
+    return (prefix || '') + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  };
+
+  function showToast(msg){
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){
+      el.classList.remove('show');
+    }, 1900);
+  }
+
+  // Safe joining function that respects user inputs, punctuation, brackets and commas
+  function cleanJoinPrompts(parts){
+    const valid = (parts || [])
+      .map(function(p){
+        return (p === null || p === undefined) ? '' : String(p).trim();
+      })
+      .filter(function(p){
+        return p.length > 0;
+      });
+    if (!valid.length) return '';
+    let result = '';
+    for (let i = 0; i < valid.length; i++) {
+      const part = valid[i];
+      if (i === 0) {
+        result = part;
+      } else {
+        const prevEndsWithComma = /,\s*$/.test(result);
+        if (prevEndsWithComma) {
+          result = result + '\n' + part;
+        } else {
+          result = result + ',\n' + part;
+        }
+      }
+    }
+    return result;
+  }
+
+  function copy(text, msg){
+    if(!text){
+      showToast('内容为空');
+      return;
+    }
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){
+        showToast(msg);
+      }).catch(function(){
+        fallbackCopy(text, msg);
+      });
+    } else {
+      fallbackCopy(text, msg);
+    }
+  }
+
+  function fallbackCopy(text, msg){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    ta.style.pointerEvents = 'none';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      const ok = document.execCommand('copy');
+      showToast(ok ? msg : '复制失败，请手动长按复制');
+    } catch(e) {
+      showToast('复制失败，请手动长按复制');
+    }
+    ta.remove();
+  }
+
+  // --- Artist Presets Logic ---
+  function loadArtistData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_ARTIST);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length > 0){
+          artistPresets = parsed.map(function(p){
+            return {
+              id: p.id || uid('art_'),
+              name: String(p.name || '未命名画师串'),
+              positive: String(p.positive || ''),
+              negative: String(p.negative || '')
+            };
+          });
+        }
+      }
+    } catch(e){
+      artistPresets = [];
+    }
+    if(!artistPresets.length){
+      artistPresets = [{
+        id: uid('art_'),
+        name: '示例预设（可修改）',
+        positive: 'best quality, amazing quality, masterpiece, highres, year_2026, year_2025',
+        negative: 'low quality, worst quality, blurry, watermark'
+      }];
+      saveArtistData();
+    }
+    currentArtistId = artistPresets[0].id;
+    if (comboArtistId === null) {
+      comboArtistId = currentArtistId;
+    }
+  }
+
+  function saveArtistData(){
+    try {
+      localStorage.setItem(STORAGE_ARTIST, JSON.stringify(artistPresets));
+    } catch(e){
+      showToast('浏览器存储失败，请导出备份');
+    }
+  }
+
+  function activeArtist(){
+    return artistPresets.find(function(p){ return p.id === currentArtistId; }) || artistPresets[0];
+  }
+
+  function syncArtistFromEditor(){
+    const p = activeArtist();
+    if(!p) return;
+    p.name = $('presetName').value;
+    p.positive = $('positive').value;
+    p.negative = $('negative').value;
+    saveArtistData();
+    renderArtistList();
+    updateArtistCounts();
+    updateComboSelects();
+    updateComboPreview();
+  }
+
+  function updateArtistCounts(){
+    $('posCount').textContent = $('positive').value.length ? ('· ' + $('positive').value.length + ' 字符') : '';
+    $('negCount').textContent = $('negative').value.length ? ('· ' + $('negative').value.length + ' 字符') : '';
+  }
+
+  function renderArtistList(){
+    const q = $('search').value.trim().toLowerCase();
+    const list = artistPresets.filter(function(p){
+      return (p.name || '').toLowerCase().indexOf(q) !== -1;
+    });
+    $('count').textContent = artistPresets.length + ' 套';
+    $('artistCountBadge').textContent = artistPresets.length;
+    $('presetList').innerHTML = '';
+
+    if(!list.length){
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty';
+      emptyDiv.textContent = '没有找到画师串预设';
+      $('presetList').appendChild(emptyDiv);
+      return;
+    }
+
+    list.forEach(function(p){
+      const b = document.createElement('button');
+      b.className = 'preset' + (p.id === currentArtistId ? ' active' : '');
+      b.type = 'button';
+
+      const name = document.createElement('span');
+      name.className = 'pname';
+      name.textContent = p.name || '未命名预设';
+
+      const meta = document.createElement('span');
+      meta.className = 'pmeta';
+      meta.textContent = '正面 ' + (p.positive || '').length + ' · 负面 ' + (p.negative || '').length;
+
+      b.appendChild(name);
+      b.appendChild(meta);
+      b.addEventListener('click', function(){
+        syncArtistFromEditor();
+        currentArtistId = p.id;
+        renderArtistList();
+        renderArtistEditor();
+      });
+      $('presetList').appendChild(b);
+    });
+  }
+
+  function renderArtistEditor(){
+    const p = activeArtist();
+    $('presetName').value = p ? (p.name || '') : '';
+    $('positive').value = p ? (p.positive || '') : '';
+    $('negative').value = p ? (p.negative || '') : '';
+    $('deleteBtn').disabled = artistPresets.length <= 1;
+    updateArtistCounts();
+  }
+
+  function newArtistPreset(){
+    syncArtistFromEditor();
+    const p = {
+      id: uid('art_'),
+      name: '新画师串预设',
+      positive: '',
+      negative: ''
+    };
+    artistPresets.unshift(p);
+    currentArtistId = p.id;
+    $('search').value = '';
+    renderArtistList();
+    renderArtistEditor();
+    updateComboSelects();
+    updateComboPreview();
+    updateBadges();
+    $('presetName').focus();
+    $('presetName').select();
+  }
+
+  // --- Character Presets Logic ---
+  function loadCharData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_CHARACTER);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length > 0){
+          characterPresets = parsed.map(function(c){
+            return {
+              id: c.id || uid('char_'),
+              name: String(c.name || '未命名角色'),
+              category: String(c.category || '女角色'),
+              character: String(c.character || ''),
+              clothing: String(c.clothing || ''),
+              scene: String(c.scene || ''),
+              negative: String(c.negative || '')
+            };
+          });
+        }
+      }
+    } catch(e){
+      characterPresets = [];
+    }
+    if(!characterPresets.length){
+      characterPresets = [
+        {
+          id: uid('char_'),
+          name: '粉白系双马尾少女',
+          category: '女角色',
+          character: '1girl, cute, pale skin, pink twin braids, bangs, blue crystal eyes, gentle smile, blush, slender body, youthful',
+          clothing: 'white frilled off-shoulder blouse, pastel pink pleated skirt, white thigh-high socks, ribbon choker, wrist cuffs',
+          scene: 'sakura garden, blooming cherry blossoms, soft dappled sunlight, pastel petals flying, bokeh, depth of field',
+          negative: 'ugly, bad anatomy, bad hands, missing fingers, extra digits'
+        },
+        {
+          id: uid('char_'),
+          name: '冷峻银发近卫骑士',
+          category: '男角色',
+          character: '1boy, handsome, silver medium messy hair, sharp amber eyes, cold expression, scar on cheek, tall and athletic build',
+          clothing: 'black and silver ornate plate armor, high collar tunic underneath, dark cloak, leather gauntlets, silver sword hilt',
+          scene: 'ancient gothic hall, stone pillars, stained glass window, dramatic moonlight, floating dust particles, cinematic lighting',
+          negative: 'female, soft features, bad hands, low resolution'
+        }
+      ];
+      saveCharData();
+    }
+    currentCharId = characterPresets[0].id;
+    if (comboCharId === null) {
+      comboCharId = currentCharId;
+    }
+  }
+
+  function saveCharData(){
+    try {
+      localStorage.setItem(STORAGE_CHARACTER, JSON.stringify(characterPresets));
+    } catch(e){
+      showToast('浏览器存储失败，请导出备份');
+    }
+  }
+
+  function activeChar(){
+    return characterPresets.find(function(c){ return c.id === currentCharId; }) || characterPresets[0];
+  }
+
+  function loadCharCategories(){
+    const defaultCats = ['女角色', '男角色'];
+    try {
+      const raw = localStorage.getItem(STORAGE_CHAR_CATEGORIES);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length > 0){
+          charCategories = parsed.map(function(s){ return String(s).trim(); }).filter(Boolean);
+        }
+      }
+    } catch(e){
+      charCategories = [];
+    }
+    // 也包含现有预设里的分类
+    characterPresets.forEach(function(c){
+      const cat = (c.category || '').trim();
+      if(cat && !charCategories.includes(cat)) charCategories.push(cat);
+    });
+    if(!charCategories.length){
+      charCategories = defaultCats.slice();
+    }
+    saveCharCategories();
+  }
+
+  function saveCharCategories(){
+    try {
+      localStorage.setItem(STORAGE_CHAR_CATEGORIES, JSON.stringify(charCategories));
+    } catch(e){}
+  }
+
+  function getAvailableCategories(){
+    const list = charCategories.slice();
+    characterPresets.forEach(function(c){
+      const cat = (c.category || '').trim();
+      if(cat && !list.includes(cat)) list.push(cat);
+    });
+    return list;
+  }
+
+  function deleteCategoryAction(cat){
+    const matching = characterPresets.filter(function(c){ return (c.category || '').trim() === cat; });
+    let msg = '确定删除分类「' + cat + '」吗？';
+    if(matching.length > 0){
+      msg += '\n此分类下的 ' + matching.length + ' 套角色预设将保留并归入「未分类」。';
+    }
+    if(!confirm(msg)) return;
+    if(matching.length > 0){
+      matching.forEach(function(c){
+        if((c.category || '').trim() === cat){
+          c.category = '未分类';
+        }
+      });
+      saveCharData();
+    }
+    charCategories = charCategories.filter(function(x){ return x !== cat; });
+    saveCharCategories();
+    selectedCharCategory = 'ALL';
+    updateCategoryPills();
+    updateCategoryDatalist();
+    renderCharList();
+    renderCharEditor();
+    updateComboSelects();
+    updateComboPreview();
+    showToast('已删除分类「' + cat + '」');
+  }
+
+  let modalSource = 'sidebar';
+  function openCategoryModal(source){
+    modalSource = source || 'sidebar';
+    const modal = $('categoryModal');
+    const input = $('newCategoryInput');
+    modal.style.display = 'flex';
+    input.value = '';
+    setTimeout(function(){
+      input.focus();
+    }, 50);
+  }
+
+  function closeCategoryModal(){
+    $('categoryModal').style.display = 'none';
+  }
+
+  function confirmCreateCategory(){
+    const input = $('newCategoryInput');
+    const catName = input.value.trim();
+    if(!catName){
+      showToast('请输入分类名称');
+      input.focus();
+      return;
+    }
+    if(catName === '全部' || catName.toUpperCase() === 'ALL'){
+      showToast('「全部」为系统保留分类名称');
+      input.focus();
+      return;
+    }
+    if(!charCategories.includes(catName)){
+      charCategories.push(catName);
+      saveCharCategories();
+    }
+    closeCategoryModal();
+
+    if(modalSource === 'editor'){
+      const c = activeChar();
+      if(c){
+        c.category = catName;
+        saveCharData();
+      }
+      updateCategoryPills();
+      updateCategorySelectOptions(catName);
+      renderCharList();
+      renderCharEditor();
+      updateComboSelects();
+      updateComboPreview();
+      showToast('已创建分类「' + catName + '」并应用至当前角色');
+    } else {
+      selectedCharCategory = catName;
+      newCharPreset(catName);
+      showToast('已创建分类「' + catName + '」并新建角色');
+    }
+  }
+
+  function updateCategorySelectOptions(selectedVal){
+    const sel = $('charCategorySelect');
+    if(!sel) return;
+    const currentVal = selectedVal !== undefined ? selectedVal : (activeChar() ? activeChar().category : '');
+    const cats = getAvailableCategories();
+    sel.innerHTML = '';
+    
+    cats.forEach(function(cat){
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      sel.appendChild(opt);
+    });
+
+    if(currentVal && !cats.includes(currentVal) && currentVal !== '__NEW__'){
+      const opt = document.createElement('option');
+      opt.value = currentVal;
+      opt.textContent = currentVal;
+      sel.insertBefore(opt, sel.firstChild);
+    }
+
+    const newOpt = document.createElement('option');
+    newOpt.value = '__NEW__';
+    newOpt.textContent = '＋ 新建新分类...';
+    sel.appendChild(newOpt);
+
+    if(currentVal && (cats.includes(currentVal) || currentVal === '未分类')){
+      sel.value = currentVal;
+    } else if(cats.length){
+      sel.value = cats[0];
+    }
+  }
+
+  function syncCharFromEditor(){
+    const c = activeChar();
+    if(!c) return;
+    c.name = $('charName').value;
+    const catSel = $('charCategorySelect');
+    if(catSel && catSel.value && catSel.value !== '__NEW__'){
+      c.category = catSel.value;
+    }
+    c.character = $('charPrompt').value;
+    c.clothing = $('charClothing').value;
+    c.scene = $('charScene').value;
+    c.negative = $('charNegative').value;
+    saveCharData();
+    renderCharList();
+    updateCharCounts();
+    updateCategoryPills();
+    updateComboSelects();
+    updateComboPreview();
+  }
+
+  function updateCharCounts(){
+    $('charPromptCount').textContent = $('charPrompt').value.length ? ('· ' + $('charPrompt').value.length + ' 字符') : '';
+    $('charClothingCount').textContent = $('charClothing').value.length ? ('· ' + $('charClothing').value.length + ' 字符') : '';
+    $('charSceneCount').textContent = $('charScene').value.length ? ('· ' + $('charScene').value.length + ' 字符') : '';
+    $('charNegCount').textContent = $('charNegative').value.length ? ('· ' + $('charNegative').value.length + ' 字符') : '';
+  }
+
+  function getUniqueCategories(){
+    return getAvailableCategories();
+  }
+
+  function updateCategoryDatalist(){
+    updateCategorySelectOptions();
+  }
+
+  function updateCategoryPills(){
+    const container = $('categoryPillBar');
+    container.innerHTML = '';
+    const cats = ['全部'].concat(getAvailableCategories());
+    cats.forEach(function(cat){
+      const b = document.createElement('button');
+      b.type = 'button';
+      const isAll = cat === '全部';
+      const isActive = isAll ? (selectedCharCategory === 'ALL' || !selectedCharCategory) : (selectedCharCategory === cat);
+      b.className = 'cat-pill' + (isActive ? ' active' : '');
+      
+      const txt = document.createElement('span');
+      txt.textContent = cat;
+      b.appendChild(txt);
+
+      if(!isAll && isActive){
+        const delBtn = document.createElement('span');
+        delBtn.className = 'cat-del';
+        delBtn.innerHTML = '&times;';
+        delBtn.title = '删除「' + cat + '」分类';
+        delBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          deleteCategoryAction(cat);
+        });
+        b.appendChild(delBtn);
+      }
+
+      b.addEventListener('click', function(){
+        selectedCharCategory = isAll ? 'ALL' : cat;
+        updateCategoryPills();
+        renderCharList();
+      });
+      container.appendChild(b);
+    });
+
+    // ＋ 新建分类 按钮
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'cat-pill add';
+    addBtn.id = 'addCategoryPillBtn';
+    addBtn.innerHTML = '＋ 新建分类';
+    addBtn.title = '新建角色分类';
+    addBtn.addEventListener('click', function(){
+      openCategoryModal('sidebar');
+    });
+    container.appendChild(addBtn);
+  }
+
+  function renderCharList(){
+    const q = $('charSearch').value.trim().toLowerCase();
+    const list = characterPresets.filter(function(c){
+      const matchQ = !q || (c.name || '').toLowerCase().indexOf(q) !== -1 || (c.category || '').toLowerCase().indexOf(q) !== -1;
+      const matchCat = (selectedCharCategory === 'ALL' || !selectedCharCategory) || (c.category || '').trim() === selectedCharCategory;
+      return matchQ && matchCat;
+    });
+
+    $('charCount').textContent = characterPresets.length + ' 套';
+    $('charCountBadge').textContent = characterPresets.length;
+    $('charPresetList').innerHTML = '';
+
+    if(!list.length){
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'cat-empty-box';
+      
+      const p = document.createElement('p');
+      if(selectedCharCategory && selectedCharCategory !== 'ALL'){
+        p.textContent = '分类「' + selectedCharCategory + '」下暂无角色预设';
+      } else if(q){
+        p.textContent = '没有找到匹配的角色预设';
+      } else {
+        p.textContent = '暂无角色预设';
+      }
+      emptyDiv.appendChild(p);
+
+      const actions = document.createElement('div');
+      actions.className = 'cat-empty-actions';
+
+      const createBtn = document.createElement('button');
+      createBtn.type = 'button';
+      createBtn.className = 'btn mini-btn primary';
+      createBtn.textContent = (selectedCharCategory && selectedCharCategory !== 'ALL')
+        ? ('＋ 在「' + selectedCharCategory + '」下新建角色')
+        : '＋ 新建角色预设';
+      createBtn.addEventListener('click', function(){
+        newCharPreset(selectedCharCategory !== 'ALL' ? selectedCharCategory : null);
+      });
+      actions.appendChild(createBtn);
+
+      if(selectedCharCategory && selectedCharCategory !== 'ALL'){
+        const delCatBtn = document.createElement('button');
+        delCatBtn.type = 'button';
+        delCatBtn.className = 'btn mini-btn danger';
+        delCatBtn.textContent = '删除此分类';
+        delCatBtn.addEventListener('click', function(){
+          deleteCategoryAction(selectedCharCategory);
+        });
+        actions.appendChild(delCatBtn);
+      }
+
+      emptyDiv.appendChild(actions);
+      $('charPresetList').appendChild(emptyDiv);
+      return;
+    }
+
+    list.forEach(function(c){
+      const b = document.createElement('button');
+      b.className = 'preset' + (c.id === currentCharId ? ' active' : '');
+      b.type = 'button';
+
+      const name = document.createElement('span');
+      name.className = 'pname';
+
+      if(c.category && c.category.trim()){
+        const catBadge = document.createElement('span');
+        catBadge.className = 'pcat';
+        catBadge.textContent = c.category.trim();
+        name.appendChild(catBadge);
+      }
+
+      const textNode = document.createTextNode(c.name || '未命名角色');
+      name.appendChild(textNode);
+
+      const posLen = (c.character || '').length + (c.clothing || '').length + (c.scene || '').length;
+      const negLen = (c.negative || '').length;
+
+      const meta = document.createElement('span');
+      meta.className = 'pmeta';
+      meta.textContent = '正面 ' + posLen + ' · 负面 ' + negLen;
+
+      b.appendChild(name);
+      b.appendChild(meta);
+      b.addEventListener('click', function(){
+        syncCharFromEditor();
+        currentCharId = c.id;
+        comboCharId = c.id;
+        renderCharList();
+        renderCharEditor();
+        updateComboSelects();
+        updateComboPreview();
+      });
+      $('charPresetList').appendChild(b);
+    });
+  }
+
+  function renderCharEditor(){
+    const c = activeChar();
+    $('charName').value = c ? (c.name || '') : '';
+    updateCategorySelectOptions(c ? (c.category || '') : '');
+    $('charPrompt').value = c ? (c.character || '') : '';
+    $('charClothing').value = c ? (c.clothing || '') : '';
+    $('charScene').value = c ? (c.scene || '') : '';
+    $('charNegative').value = c ? (c.negative || '') : '';
+    $('deleteCharBtn').disabled = characterPresets.length <= 1;
+    updateCharCounts();
+  }
+
+  function newCharPreset(catOverride){
+    syncCharFromEditor();
+    
+    let targetCategory = catOverride;
+    if(!targetCategory){
+      targetCategory = (selectedCharCategory && selectedCharCategory !== 'ALL')
+        ? selectedCharCategory
+        : (charCategories[0] || '女角色');
+    }
+
+    if(targetCategory && targetCategory !== 'ALL' && !charCategories.includes(targetCategory)){
+      charCategories.push(targetCategory);
+      saveCharCategories();
+    }
+
+    const c = {
+      id: uid('char_'),
+      name: '新角色预设',
+      category: targetCategory,
+      character: '',
+      clothing: '',
+      scene: '',
+      negative: ''
+    };
+    characterPresets.unshift(c);
+    currentCharId = c.id;
+    comboCharId = c.id;
+    $('charSearch').value = '';
+    
+    updateCategoryPills();
+    updateCategoryDatalist();
+    renderCharList();
+    renderCharEditor();
+    updateComboSelects();
+    updateComboPreview();
+    updateBadges();
+    $('charName').focus();
+    $('charName').select();
+  }
+
+  // --- Combination Generator Logic ---
+  function updateComboSelects(){
+    const artistSelect = $('comboArtistSelect');
+    const charSelect = $('comboCharSelect');
+
+    artistSelect.innerHTML = '';
+    const defArtistOpt = document.createElement('option');
+    defArtistOpt.value = '';
+    defArtistOpt.textContent = '(不使用画师串 / 仅角色)';
+    artistSelect.appendChild(defArtistOpt);
+
+    artistPresets.forEach(function(a){
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name || '未命名画师串';
+      artistSelect.appendChild(opt);
+    });
+
+    if (comboArtistId === null) {
+      comboArtistId = currentArtistId || (artistPresets[0] ? artistPresets[0].id : '');
+    }
+
+    if (comboArtistId && artistPresets.some(function(a){ return a.id === comboArtistId; })) {
+      artistSelect.value = comboArtistId;
+    } else if (comboArtistId === '') {
+      artistSelect.value = '';
+    } else {
+      comboArtistId = artistPresets[0] ? artistPresets[0].id : '';
+      artistSelect.value = comboArtistId;
+    }
+
+    charSelect.innerHTML = '';
+    const defCharOpt = document.createElement('option');
+    defCharOpt.value = '';
+    defCharOpt.textContent = '(不使用角色 / 仅画师串)';
+    charSelect.appendChild(defCharOpt);
+
+    characterPresets.forEach(function(c){
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      const catText = c.category ? ('[' + c.category + '] ') : '';
+      opt.textContent = catText + (c.name || '未命名角色');
+      charSelect.appendChild(opt);
+    });
+
+    if (comboCharId === null) {
+      comboCharId = currentCharId || (characterPresets[0] ? characterPresets[0].id : '');
+    }
+
+    if (comboCharId && characterPresets.some(function(c){ return c.id === comboCharId; })) {
+      charSelect.value = comboCharId;
+    } else if (comboCharId === '') {
+      charSelect.value = '';
+    } else {
+      comboCharId = characterPresets[0] ? characterPresets[0].id : '';
+      charSelect.value = comboCharId;
+    }
+  }
+
+  function getCombinedPrompts(){
+    const artist = artistPresets.find(function(a){ return a.id === comboArtistId; }) || null;
+    const char = characterPresets.find(function(c){ return c.id === comboCharId; }) || null;
+
+    const artistPos = artist ? (artist.positive || '').trim() : '';
+    const artistNeg = artist ? (artist.negative || '').trim() : '';
+
+    let charPos = '';
+    let charNeg = '';
+    if(char){
+      charPos = cleanJoinPrompts([char.character, char.clothing, char.scene]);
+      charNeg = (char.negative || '').trim();
+    }
+
+    const finalPos = cleanJoinPrompts([artistPos, charPos]);
+    const finalNeg = cleanJoinPrompts([artistNeg, charNeg]);
+
+    return { finalPos: finalPos, finalNeg: finalNeg };
+  }
+
+  function updateComboPreview(){
+    const combo = getCombinedPrompts();
+    $('comboPosPreview').value = combo.finalPos;
+    $('comboNegPreview').value = combo.finalNeg;
+
+    $('comboPosCount').textContent = combo.finalPos.length ? ('· ' + combo.finalPos.length + ' 字符') : '';
+    $('comboNegCount').textContent = combo.finalNeg.length ? ('· ' + combo.finalNeg.length + ' 字符') : '';
+  }
+
+  // --- Tab Switching Logic ---
+  function switchTab(tab){
+    if(tab === currentTab) return;
+    if(currentTab === 'artist'){
+      syncArtistFromEditor();
+    } else {
+      syncCharFromEditor();
+    }
+
+    currentTab = tab;
+    if(tab === 'artist'){
+      $('viewArtist').style.display = 'block';
+      $('viewCharacter').style.display = 'none';
+      $('tabArtistBtn').classList.add('active');
+      $('tabArtistBtn').setAttribute('aria-selected', 'true');
+      $('tabCharBtn').classList.remove('active');
+      $('tabCharBtn').setAttribute('aria-selected', 'false');
+      $('newBtn').textContent = '＋ 新建画师串';
+      renderArtistList();
+      renderArtistEditor();
+    } else {
+      $('viewArtist').style.display = 'none';
+      $('viewCharacter').style.display = 'block';
+      $('tabCharBtn').classList.add('active');
+      $('tabCharBtn').setAttribute('aria-selected', 'true');
+      $('tabArtistBtn').classList.remove('active');
+      $('tabArtistBtn').setAttribute('aria-selected', 'false');
+      $('newBtn').textContent = '＋ 新建角色预设';
+      renderCharList();
+      renderCharEditor();
+      updateCategoryPills();
+      updateComboSelects();
+      updateComboPreview();
+    }
+  }
+
+  function updateBadges(){
+    $('artistCountBadge').textContent = artistPresets.length;
+    $('charCountBadge').textContent = characterPresets.length;
+  }
+
+  // --- Export and Import ---
+  function exportData(){
+    syncArtistFromEditor();
+    syncCharFromEditor();
+    const backup = {
+      app: 'NAI Prompt Library',
+      version: 2,
+      exportTime: new Date().toISOString(),
+      presets: artistPresets,
+      characterPresets: characterPresets,
+      categories: charCategories
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nai-prompt-library-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(function(){
+      URL.revokeObjectURL(url);
+    }, 1000);
+    showToast('完整备份文件已导出');
+  }
+
+  function importData(file){
+    const reader = new FileReader();
+    reader.onload = function(){
+      try {
+        const data = JSON.parse(reader.result);
+        let incomingArtists = [];
+        let incomingChars = [];
+
+        if(Array.isArray(data)){
+          data.forEach(function(item){
+            if(!item || typeof item !== 'object') return;
+            if(item.character !== undefined || item.clothing !== undefined || item.scene !== undefined){
+              incomingChars.push(item);
+            } else {
+              incomingArtists.push(item);
+            }
+          });
+        } else if(data && typeof data === 'object'){
+          if(Array.isArray(data.presets)){
+            incomingArtists = data.presets;
+          }
+          if(Array.isArray(data.characterPresets)){
+            incomingChars = data.characterPresets;
+          } else if(Array.isArray(data.characters)){
+            incomingChars = data.characters;
+          }
+          if(Array.isArray(data.categories)){
+            data.categories.forEach(function(cat){
+              cat = String(cat).trim();
+              if(cat && cat !== '全部' && !charCategories.includes(cat)){
+                charCategories.push(cat);
+              }
+            });
+            saveCharCategories();
+          }
+        }
+
+        const cleanedArtists = incomingArtists
+          .filter(function(p){ return p && typeof p === 'object'; })
+          .map(function(p){
+            return {
+              id: uid('art_'),
+              name: String(p.name || '导入画师串'),
+              positive: String(p.positive || ''),
+              negative: String(p.negative || '')
+            };
+          });
+
+        const cleanedChars = incomingChars
+          .filter(function(c){ return c && typeof c === 'object'; })
+          .map(function(c){
+            return {
+              id: uid('char_'),
+              name: String(c.name || '导入角色'),
+              category: String(c.category || '未分类'),
+              character: String(c.character || ''),
+              clothing: String(c.clothing || ''),
+              scene: String(c.scene || ''),
+              negative: String(c.negative || '')
+            };
+          });
+
+        if(!cleanedArtists.length && !cleanedChars.length){
+          showToast('文件中未发现有效的预设数据');
+          return;
+        }
+
+        const summary = [];
+        if(cleanedArtists.length) summary.push('• 画师串预设：' + cleanedArtists.length + ' 套');
+        if(cleanedChars.length) summary.push('• 角色预设：' + cleanedChars.length + ' 套');
+
+        const confirmMsg = '准备导入以下内容：\n' + summary.join('\n') + '\n\n确定后将与当前数据合并（不覆盖现有预设）。';
+        if(!confirm(confirmMsg)) return;
+
+        if(cleanedArtists.length){
+          artistPresets = cleanedArtists.concat(artistPresets);
+          currentArtistId = cleanedArtists[0].id;
+          saveArtistData();
+          renderArtistList();
+          renderArtistEditor();
+        }
+
+        if(cleanedChars.length){
+          cleanedChars.forEach(function(c){
+            const cat = (c.category || '').trim();
+            if(cat && cat !== '未分类' && !charCategories.includes(cat)){
+              charCategories.push(cat);
+            }
+          });
+          saveCharCategories();
+          characterPresets = cleanedChars.concat(characterPresets);
+          currentCharId = cleanedChars[0].id;
+          saveCharData();
+          updateCategoryPills();
+          updateCategoryDatalist();
+          renderCharList();
+          renderCharEditor();
+        }
+
+        updateComboSelects();
+        updateComboPreview();
+        updateBadges();
+        showToast('导入完成：已合并 ' + (cleanedArtists.length + cleanedChars.length) + ' 套预设');
+      } catch(e){
+        showToast('文件格式不正确，无法导入');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // --- Event Listeners Initialization ---
+  function initEvents(){
+    // Tab Switching
+    $('tabArtistBtn').addEventListener('click', function(){ switchTab('artist'); });
+    $('tabCharBtn').addEventListener('click', function(){ switchTab('character'); });
+
+    // Top Toolbar
+    $('newBtn').addEventListener('click', function(){
+      if(currentTab === 'artist'){
+        newArtistPreset();
+      } else {
+        newCharPreset();
+      }
+    });
+    $('exportBtn').addEventListener('click', exportData);
+    $('importBtn').addEventListener('click', function(){ $('fileInput').click(); });
+    $('fileInput').addEventListener('change', function(e){
+      if(e.target.files && e.target.files[0]) importData(e.target.files[0]);
+      e.target.value = '';
+    });
+
+    // --- Artist Events ---
+    $('search').addEventListener('input', function(){ renderArtistList(); });
+    ['presetName', 'positive', 'negative'].forEach(function(id){
+      $(id).addEventListener('input', function(){ syncArtistFromEditor(); });
+    });
+    $('copyPos').addEventListener('click', function(){ copy($('positive').value, '正面画师词已复制'); });
+    $('copyNeg').addEventListener('click', function(){ copy($('negative').value, '负面画师词已复制'); });
+    $('copyBoth').addEventListener('click', function(){
+      const p = activeArtist();
+      if(!p) return;
+      copy('正面提示词：\n' + p.positive + '\n\n负面提示词：\n' + p.negative, '整套画师词已复制');
+    });
+    $('duplicateBtn').addEventListener('click', function(){
+      syncArtistFromEditor();
+      const p = activeArtist();
+      if(!p) return;
+      const c = Object.assign({}, p, { id: uid('art_'), name: (p.name || '画师串') + '（副本）' });
+      artistPresets.unshift(c);
+      currentArtistId = c.id;
+      renderArtistList();
+      renderArtistEditor();
+      updateComboSelects();
+      updateComboPreview();
+      updateBadges();
+      showToast('已复制画师串预设');
+    });
+    $('deleteBtn').addEventListener('click', function(){
+      if(artistPresets.length <= 1){
+        showToast('至少保留一套画师串预设');
+        return;
+      }
+      const p = activeArtist();
+      if(!confirm('确定删除「' + (p.name || '未命名预设') + '」吗？')) return;
+      artistPresets = artistPresets.filter(function(x){ return x.id !== currentArtistId; });
+      currentArtistId = artistPresets[0].id;
+      saveArtistData();
+      renderArtistList();
+      renderArtistEditor();
+      updateComboSelects();
+      updateComboPreview();
+      updateBadges();
+      showToast('已删除');
+    });
+
+    // --- Character Events ---
+    $('charSearch').addEventListener('input', function(){ renderCharList(); });
+    ['charName', 'charPrompt', 'charClothing', 'charScene', 'charNegative'].forEach(function(id){
+      $(id).addEventListener('input', function(){ syncCharFromEditor(); });
+    });
+
+    $('charCategorySelect').addEventListener('change', function(e){
+      if(e.target.value === '__NEW__'){
+        openCategoryModal('editor');
+        const c = activeChar();
+        if(c) e.target.value = c.category;
+      } else {
+        const c = activeChar();
+        if(c){
+          c.category = e.target.value;
+          saveCharData();
+          renderCharList();
+          updateCategoryPills();
+          updateComboSelects();
+          updateComboPreview();
+        }
+      }
+    });
+
+    if($('editorAddCategoryBtn')){
+      $('editorAddCategoryBtn').addEventListener('click', function(){
+        openCategoryModal('editor');
+      });
+    }
+
+    $('copyCharPrompt').addEventListener('click', function(){ copy($('charPrompt').value, '角色主体词已复制'); });
+    $('copyCharClothing').addEventListener('click', function(){ copy($('charClothing').value, '服装配饰词已复制'); });
+    $('copyCharScene').addEventListener('click', function(){ copy($('charScene').value, '场景灯光词已复制'); });
+    $('copyCharNeg').addEventListener('click', function(){ copy($('charNegative').value, '角色负面词已复制'); });
+
+    $('copyCharPosFull').addEventListener('click', function(){
+      const pos = cleanJoinPrompts([$('charPrompt').value, $('charClothing').value, $('charScene').value]);
+      copy(pos, '角色完整正面词已复制');
+    });
+    $('copyCharNegFull').addEventListener('click', function(){
+      copy($('charNegative').value, '角色负面词已复制');
+    });
+    $('copyCharBothFull').addEventListener('click', function(){
+      const pos = cleanJoinPrompts([$('charPrompt').value, $('charClothing').value, $('charScene').value]);
+      const neg = $('charNegative').value.trim();
+      let text = '';
+      if(pos && neg){
+        text = '正面提示词：\n' + pos + '\n\n负面提示词：\n' + neg;
+      } else if(pos){
+        text = '正面提示词：\n' + pos;
+      } else if(neg){
+        text = '负面提示词：\n' + neg;
+      }
+      copy(text, '角色整套提示词已复制');
+    });
+
+    $('duplicateCharBtn').addEventListener('click', function(){
+      syncCharFromEditor();
+      const c = activeChar();
+      if(!c) return;
+      const copyPreset = Object.assign({}, c, { id: uid('char_'), name: (c.name || '角色') + '（副本）' });
+      characterPresets.unshift(copyPreset);
+      currentCharId = copyPreset.id;
+      comboCharId = copyPreset.id;
+      renderCharList();
+      renderCharEditor();
+      updateCategoryPills();
+      updateCategoryDatalist();
+      updateComboSelects();
+      updateComboPreview();
+      updateBadges();
+      showToast('已复制角色预设');
+    });
+
+    $('deleteCharBtn').addEventListener('click', function(){
+      if(characterPresets.length <= 1){
+        showToast('至少保留一套角色预设');
+        return;
+      }
+      const c = activeChar();
+      if(!confirm('确定删除角色「' + (c.name || '未命名角色') + '」吗？')) return;
+      characterPresets = characterPresets.filter(function(x){ return x.id !== currentCharId; });
+      const sameCatPresets = characterPresets.filter(function(x){
+        return (selectedCharCategory === 'ALL' || !selectedCharCategory) || (x.category || '').trim() === selectedCharCategory;
+      });
+      currentCharId = (sameCatPresets[0] || characterPresets[0]).id;
+      comboCharId = currentCharId;
+      saveCharData();
+
+      const currentCats = getAvailableCategories();
+      if(selectedCharCategory !== 'ALL' && !currentCats.includes(selectedCharCategory)){
+        selectedCharCategory = 'ALL';
+      }
+
+      renderCharList();
+      renderCharEditor();
+      updateCategoryPills();
+      updateCategoryDatalist();
+      updateComboSelects();
+      updateComboPreview();
+      updateBadges();
+      showToast('角色预设已删除');
+    });
+
+    // --- Combination Events ---
+    $('comboArtistSelect').addEventListener('change', function(e){
+      comboArtistId = e.target.value;
+      updateComboPreview();
+    });
+    $('comboCharSelect').addEventListener('change', function(e){
+      comboCharId = e.target.value;
+      updateComboPreview();
+    });
+    $('comboSyncCurrentCharBtn').addEventListener('click', function(){
+      if(currentCharId){
+        comboCharId = currentCharId;
+        $('comboCharSelect').value = currentCharId;
+        updateComboPreview();
+        showToast('已对齐当前编辑角色');
+      }
+    });
+
+    const copyComboPosAction = function(){
+      const combo = getCombinedPrompts();
+      copy(combo.finalPos, '最终正面词已复制');
+    };
+    const copyComboNegAction = function(){
+      const combo = getCombinedPrompts();
+      copy(combo.finalNeg, '最终负面词已复制');
+    };
+    const copyComboBothAction = function(){
+      const combo = getCombinedPrompts();
+      let text = '';
+      if(combo.finalPos && combo.finalNeg){
+        text = '正面提示词：\n' + combo.finalPos + '\n\n负面提示词：\n' + combo.finalNeg;
+      } else if(combo.finalPos){
+        text = '正面提示词：\n' + combo.finalPos;
+      } else if(combo.finalNeg){
+        text = '负面提示词：\n' + combo.finalNeg;
+      }
+      copy(text, '完整组合提示词已复制');
+    };
+
+    $('copyComboPosBtn').addEventListener('click', copyComboPosAction);
+    $('copyComboNegBtn').addEventListener('click', copyComboNegAction);
+    $('copyComboPosBtnBottom').addEventListener('click', copyComboPosAction);
+    $('copyComboNegBtnBottom').addEventListener('click', copyComboNegAction);
+    $('copyComboBothBtn').addEventListener('click', copyComboBothAction);
+
+    // Sidebar Character New Button
+    if($('panelNewCharBtn')){
+      $('panelNewCharBtn').addEventListener('click', function(){
+        newCharPreset();
+      });
+    }
+
+    // Category Modal Events
+    $('cancelCategoryBtn').addEventListener('click', closeCategoryModal);
+    $('confirmCategoryBtn').addEventListener('click', confirmCreateCategory);
+    $('categoryModal').addEventListener('click', function(e){
+      if(e.target === $('categoryModal')) closeCategoryModal();
+    });
+    $('newCategoryInput').addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        confirmCreateCategory();
+      } else if(e.key === 'Escape'){
+        closeCategoryModal();
+      }
+    });
+    document.querySelectorAll('.modal-preset-tag').forEach(function(tag){
+      tag.addEventListener('click', function(){
+        $('newCategoryInput').value = tag.textContent.trim();
+        $('newCategoryInput').focus();
+      });
+    });
+  }
+
+  // Init App
+  loadArtistData();
+  loadCharData();
+  loadCharCategories();
+  initEvents();
+
+  renderArtistList();
+  renderArtistEditor();
+  renderCharList();
+  renderCharEditor();
+  updateCategoryPills();
+  updateCategoryDatalist();
+  updateComboSelects();
+  updateComboPreview();
+  updateBadges();
+})();
+</script>
+</body>
+</html>
